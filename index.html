@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090a0e">
+  <meta name="description" content="Fala Music — osobista biblioteka muzyczna z YouTube, SoundCloud, playlistami i tekstami.">
+  <title>Fala Music — Polska Fala Wave Six</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://w.soundcloud.com/player/api.js" async></script>
+</head>
+<body>
+  <canvas id="particles" aria-hidden="true"></canvas>
+  <div class="ambient ambient-a" aria-hidden="true"></div>
+  <div class="ambient ambient-b" aria-hidden="true"></div>
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <button class="brand" data-view="home" aria-label="Fala Music — strona główna">
+        <span class="brand-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="brand-copy"><strong>Fala Music</strong><small>POLSKA FALA · WAVE SIX</small></span>
+      </button>
+
+      <nav class="main-nav" aria-label="Główna nawigacja">
+        <button class="active" data-view="home"><span>⌂</span><b>Start</b></button>
+        <button data-view="search"><span>⌕</span><b>Szukaj</b></button>
+        <button data-view="library"><span>▤</span><b>Biblioteka</b><em id="library-count">0</em></button>
+        <button data-view="liked"><span>♥</span><b>Polubione</b><em id="liked-count">0</em></button>
+      </nav>
+
+      <div class="sidebar-section-title">
+        <span>PLAYLISTY</span>
+        <button id="create-playlist-side" class="micro-button" title="Nowa playlista">＋</button>
+      </div>
+      <div id="playlist-nav" class="playlist-nav"></div>
+
+      <div class="account-card" id="account-card">
+        <span class="status-dot" id="youtube-dot"></span>
+        <div><strong id="youtube-status">YouTube niepołączony</strong><small id="youtube-substatus">SoundCloud działa bez konta</small></div>
+        <button id="account-settings" title="Ustawienia konta">⚙</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <header class="topbar">
+        <button class="mobile-logo" data-view="home" aria-label="Start"><span class="brand-wave"><i></i><i></i><i></i><i></i></span></button>
+        <div class="global-search-wrap">
+          <span>⌕</span>
+          <input id="global-search" type="search" autocomplete="off" placeholder="Szukaj utworu, artysty albo playlisty">
+          <kbd>/</kbd>
+        </div>
+        <button id="youtube-connect-top" class="account-pill"><span class="status-dot"></span><b>Połącz YouTube</b></button>
+        <button id="add-music" class="primary-button">＋ Dodaj muzykę</button>
+      </header>
+
+      <div id="connection-banner" class="connection-banner hidden"></div>
+      <section id="view" class="view" aria-live="polite"></section>
+    </main>
+  </div>
+
+  <footer class="player" id="player" aria-label="Odtwarzacz">
+    <div class="now-playing">
+      <button class="mini-cover cover-button" id="mini-cover" title="Otwórz odtwarzacz"><span class="cover-play">▶</span></button>
+      <div class="now-copy">
+        <div class="title-line"><strong id="mini-title">Nic nie gra</strong><span id="mini-badge" class="media-badge muted">GOTOWY</span></div>
+        <span id="mini-artist">Wybierz utwór</span>
+      </div>
+      <button class="icon-button heart-button" id="mini-like" title="Polub">♡</button>
+    </div>
+
+    <div class="transport">
+      <div class="transport-buttons">
+        <button class="icon-button" id="shuffle" title="Losowo">⌘</button>
+        <button class="icon-button" id="previous" title="Poprzedni">‹</button>
+        <button class="main-play" id="play-pause" title="Odtwórz lub zatrzymaj">▶</button>
+        <button class="icon-button" id="next" title="Następny">›</button>
+        <button class="icon-button" id="repeat" title="Powtarzaj">↻</button>
+      </div>
+      <div class="timeline">
+        <span id="current-time">0:00</span>
+        <input id="seek" type="range" min="0" max="1000" value="0" aria-label="Pozycja utworu">
+        <span id="duration">0:00</span>
+      </div>
+    </div>
+
+    <div class="player-tools">
+      <button class="tool-button" id="lyrics-button">Tekst</button>
+      <button class="tool-button" id="source-button">Źródło</button>
+      <div class="volume">
+        <button class="icon-button" id="mute" title="Wycisz">🔊</button>
+        <input id="volume" type="range" min="0" max="100" value="78" aria-label="Głośność">
+        <span id="volume-label">78%</span>
+      </div>
+      <button class="icon-button" id="expand-player" title="Rozwiń odtwarzacz">⌃</button>
+    </div>
+    <div class="player-glow" id="player-glow"></div>
+  </footer>
+
+  <section class="drawer player-drawer" id="player-drawer" aria-hidden="true">
+    <header class="drawer-header">
+      <div class="drawer-title-track">
+        <div class="drawer-cover" id="drawer-cover"></div>
+        <div><strong id="drawer-track-title">Utwór</strong><span id="drawer-track-artist">Artysta</span></div>
+      </div>
+      <div class="segmented" id="drawer-tabs">
+        <button class="active" data-drawer-tab="player">Odtwarzacz</button>
+        <button data-drawer-tab="lyrics">Tekst</button>
+        <button data-drawer-tab="source">Źródło</button>
+      </div>
+      <button class="drawer-close" id="close-player-drawer">⌄</button>
+    </header>
+    <div class="drawer-body" id="drawer-body"></div>
+  </section>
+
+  <section class="drawer settings-drawer" id="settings-drawer" aria-hidden="true">
+    <header class="settings-head">
+      <div><span class="eyebrow">KONTO I ŹRÓDŁA</span><h2>Ustawienia Fali</h2></div>
+      <button class="drawer-close" id="close-settings">×</button>
+    </header>
+    <div class="settings-scroll">
+      <article class="settings-card youtube-card">
+        <div class="settings-card-head"><span class="provider-mark youtube">YT</span><div><h3>YouTube + Twoje konto</h3><p>Wyszukiwanie, import playlist i zapisywanie filmów do prawdziwych playlist YouTube.</p></div></div>
+        <label class="field-label">Google OAuth Client ID
+          <input id="google-client-id" placeholder="123456789-abc.apps.googleusercontent.com" autocomplete="off">
+        </label>
+        <p class="field-help">Client ID zostaje tylko w tej przeglądarce. Token dostępu jest trzymany wyłącznie w pamięci i znika po odświeżeniu.</p>
+        <div class="button-row">
+          <button class="primary-button" id="save-and-connect">Zapisz i połącz</button>
+          <button class="secondary-button hidden" id="disconnect-youtube">Rozłącz</button>
+        </div>
+        <div id="youtube-account-details" class="account-details hidden"></div>
+      </article>
+
+      <article class="settings-card soundcloud-card">
+        <div class="settings-card-head"><span class="provider-mark soundcloud">SC</span><div><h3>SoundCloud bez konta</h3><p>Publiczne linki i oficjalny widget. Fala nie prosi o login ani hasło SoundCloud.</p></div></div>
+        <button class="secondary-button" data-view="search" data-provider="soundcloud">Dodaj link SoundCloud</button>
+      </article>
+
+      <article class="settings-card">
+        <h3>Dane biblioteki</h3>
+        <p>Playlisty, polubienia i ustawienia są zapisywane lokalnie w przeglądarce.</p>
+        <div class="button-row"><button class="secondary-button" id="export-library">Eksportuj JSON</button><label class="secondary-button file-label">Importuj JSON<input id="import-library" type="file" accept="application/json"></label></div>
+      </article>
+
+      <article class="settings-card" id="youtube-playlists-card">
+        <h3>Twoje playlisty YouTube</h3>
+        <div id="youtube-playlists" class="youtube-playlists"><p class="muted-text">Połącz konto, aby je zobaczyć.</p></div>
+      </article>
+    </div>
+  </section>
+
+  <section class="mini-panel playlist-panel" id="playlist-panel" aria-hidden="true">
+    <header><div><span class="eyebrow">DODAJ DO FALI</span><h3 id="playlist-panel-title">Wybierz playlisty</h3></div><button class="panel-close">×</button></header>
+    <div id="playlist-options" class="playlist-options"></div>
+    <div class="quick-create"><input id="quick-playlist-name" maxlength="50" placeholder="Nowa playlista"><button id="quick-create-playlist">＋</button></div>
+  </section>
+
+  <section class="mini-panel create-panel" id="create-panel" aria-hidden="true">
+    <header><div><span class="eyebrow">NOWA KOLEKCJA</span><h3>Stwórz playlistę</h3></div><button class="panel-close">×</button></header>
+    <label class="field-label">Nazwa<input id="new-playlist-name" maxlength="50" placeholder="Nocna jazda"></label>
+    <label class="field-label">Opis<input id="new-playlist-description" maxlength="110" placeholder="Polski rap, vixa i nocne klasyki"></label>
+    <div class="swatches" id="playlist-swatches">
+      <button class="active" style="--swatch:#ff5a2c" data-color="#ff5a2c"></button><button style="--swatch:#dc2f3f" data-color="#dc2f3f"></button><button style="--swatch:#8c5cff" data-color="#8c5cff"></button><button style="--swatch:#21c77a" data-color="#21c77a"></button><button style="--swatch:#2e9cff" data-color="#2e9cff"></button>
+    </div>
+    <button id="confirm-create-playlist" class="primary-button full">Utwórz playlistę</button>
+  </section>
+
+  <div class="toast" id="toast" role="status"></div>
+  <div id="yt-player-host" class="offscreen-player" aria-hidden="true"></div>
+  <iframe id="sc-player-host" class="offscreen-player" title="SoundCloud player" allow="autoplay"></iframe>
+  <audio id="preview-audio" preload="none"></audio>
+
+  <script src="app.js"></script>
+</body>
+</html>
